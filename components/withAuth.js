@@ -1,30 +1,33 @@
 // components/withAuth.js
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { getSession } from '../utils/session'; // Utility function to get session from cookies
+import { supabase } from '../lib/supabaseClient';
 
-const withAuth = (WrappedComponent, allowedRoles = []) => {
-  return (props) => {
+const withAuth = (WrappedComponent) => {
+  const AuthenticatedComponent = (props) => {
     const router = useRouter();
 
     useEffect(() => {
-      const session = getSession();
+      const checkAuth = async () => {
+        const user = supabase.auth.user();
 
-      if (!session) {
-        // Store the current path in localStorage to redirect back after login
-        localStorage.setItem('redirectPath', router.asPath);
-        router.replace('/login');
-        return;
-      }
+        if (!user) {
+          // If the user is not authenticated, redirect to the login page
+          router.push('/login');
+        }
+      };
 
-      // Check if the user's role is allowed to access this page
-      if (allowedRoles.length > 0 && !allowedRoles.includes(session.role)) {
-        router.replace('/'); // Redirect to the home page if the role is not allowed
-      }
+      checkAuth();
     }, [router]);
 
+    // Render the wrapped component
     return <WrappedComponent {...props} />;
   };
+
+  // Set display name for better debugging
+  AuthenticatedComponent.displayName = `WithAuth(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
+
+  return AuthenticatedComponent;
 };
 
 export default withAuth;

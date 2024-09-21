@@ -70,9 +70,7 @@ function IndexPage() {
       if (updateError) {
         setMessage(`Error updating visit count: ${updateError.message}`);
       } else {
-        setMessage(
-          `Visit count updated for DL: ${dlNumber}. New count: ${updatedVisitCount}.`
-        );
+        setMessage(`Visit count updated for DL: ${dlNumber}. New count: ${updatedVisitCount}.`);
         setDriverName('');
         setPhoneNumber('');
         setDlNumber('');
@@ -81,7 +79,7 @@ function IndexPage() {
       }
     } else {
       // Insert a new driver if the DL number does not exist
-      const { data, error } = await supabase.from('drivers').insert([
+      const { error } = await supabase.from('drivers').insert([
         {
           vehicle_number: vehicleNumber,
           name: driverName,
@@ -111,7 +109,7 @@ function IndexPage() {
     if (error) {
       setMessage(`Error fetching drivers: ${error.message}`);
     } else {
-      setDrivers(data);
+      setDrivers(data); // Make sure to use the data fetched here
     }
   };
 
